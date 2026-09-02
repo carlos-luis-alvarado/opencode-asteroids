@@ -186,6 +186,12 @@ class EstrellaFugaz extends Asteroid {
 }
 
 // ── Ship ──────────────────────────────────────────────────────────────────────
+const SHIELD_MAX      = 2.5;  // segundos de energía con la carga llena
+const SHIELD_RECHARGE = 0.5;  // energía recuperada por segundo al soltar (5 s para llenar)
+const SHIELD_COST_HIT = 0.75; // coste extra de energía por cada impacto bloqueado
+const SHIELD_UNLOCK   = 0.6;  // energía mínima para reactivar tras agotarse
+const SHIELD_RADIUS   = 30;   // radio del aro protector
+
 class Ship {
   constructor() { this.reset(); }
 
@@ -201,6 +207,10 @@ class Ship {
     this.shootCooldown = 0;
     this.speedBoost    = 0;
     this.dead          = false;
+    this.shieldEnergy  = SHIELD_MAX;
+    this.shieldActive  = false;
+    this.shieldLock    = false;
+    this.shieldPulse   = 0;
   }
 
   update(dt) {
@@ -208,6 +218,22 @@ class Ship {
     if (this.invincible    > 0) this.invincible    -= dt;
     if (this.shootCooldown > 0) this.shootCooldown -= dt;
     if (this.speedBoost    > 0) this.speedBoost    -= dt;
+
+    // Escudo de energía: mantener Shift con carga disponible
+    if (this.shieldLock && this.shieldEnergy >= SHIELD_UNLOCK) this.shieldLock = false;
+    const holdShield = keys['ShiftLeft'] || keys['ShiftRight'];
+    this.shieldActive = holdShield && !this.shieldLock && this.shieldEnergy > 0;
+    if (this.shieldActive) {
+      this.shieldEnergy -= dt;
+      this.shieldPulse  += dt;
+      if (this.shieldEnergy <= 0) {
+        this.shieldEnergy = 0;
+        this.shieldLock   = true;
+        this.shieldActive = false;
+      }
+    } else {
+      this.shieldEnergy = Math.min(this.shieldEnergy + SHIELD_RECHARGE * dt, SHIELD_MAX);
+    }
 
     const ROT   = 3.5;   // rad/s
     const THRUST = 260;  // px/s²
@@ -267,6 +293,21 @@ class Ship {
       ctx.lineTo(-8 - len, 0);
       ctx.lineTo(-8,  4);
       ctx.strokeStyle = this.speedBoost > 0 ? 'rgba(0, 230, 255, 0.9)' : 'rgba(255, 130, 0, 0.85)';
+      ctx.stroke();
+    }
+
+    // Aro del escudo (cian, con pulso mientras está activo)
+    if (this.shieldActive) {
+      const w = Math.sin(this.shieldPulse * 9);
+      ctx.strokeStyle = `rgba(0, 238, 255, ${(0.65 + w * 0.25).toFixed(2)})`;
+      ctx.lineWidth   = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, SHIELD_RADIUS + w * 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(0, 238, 255, 0.25)';
+      ctx.lineWidth   = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, SHIELD_RADIUS - 5, 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -497,11 +538,20 @@ function update(dt) {
   asteroids = asteroids.filter(a => !a.dead).concat(newAsteroids);
   bullets   = bullets.filter(b => !b.dead);
 
-  // Nave vs asteroide
+  // Nave vs asteroide (el escudo activo destruye el asteroide en vez de morir)
   if (ship.invincible <= 0) {
     for (const a of asteroids) {
-      if (dist(ship, a) < ship.radius + a.radius * 0.82) {
-        killShip();
+      const reach = (ship.shieldActive ? SHIELD_RADIUS : ship.radius) + a.radius * 0.82;
+      if (dist(ship, a) < reach) {
+        if (ship.shieldActive) {
+          a.dead = true;
+          explode(a.x, a.y, a.size * 5);
+          ship.shieldEnergy = Math.max(0, ship.shieldEnergy - SHIELD_COST_HIT);
+          if (ship.shieldEnergy <= 0) ship.shieldLock = true;
+          asteroids = asteroids.filter(x => !x.dead).concat(a.split());
+        } else {
+          killShip();
+        }
         break;
       }
     }
@@ -548,6 +598,18 @@ function drawHUD() {
   if (ship.speedBoost > 0 && !ship.dead) {
     ctx.fillStyle = '#0ef';
     ctx.fillText(`VELOCIDAD ${ship.speedBoost.toFixed(1)}s`, 14, 48);
+    ctx.fillStyle = '#fff';
+  }
+
+  // Barra de energía del escudo (abajo a la izquierda)
+  if (!ship.dead) {
+    const bx = 14, by = H - 24, bw = 120, bh = 7;
+    ctx.fillText('ESCUDO', bx, by - 6);
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth   = 1;
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = ship.shieldLock ? 'rgba(150,150,150,0.9)' : '#0ef';
+    ctx.fillRect(bx + 1, by + 1, (bw - 2) * (ship.shieldEnergy / SHIELD_MAX), bh - 2);
     ctx.fillStyle = '#fff';
   }
 

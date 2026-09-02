@@ -29,6 +29,7 @@ Luego visita `http://localhost:3000`.
 | `←` `→`   | Rotar nave |
 | `↑`       | Propulsar  |
 | `Espacio` | Disparar   |
+| `Shift`   | Escudo (mantener presionado) |
 
 ## Puntuación
 
@@ -46,3 +47,4 @@ Luego visita `http://localhost:3000`.
 - Partículas de explosión al destruir asteroides
 - Power-up **Velocidad**: los asteroides destruidos pueden soltar un rayo cian que duplica el impulso de la nave durante 5 s
 - **Estrella fugaz**: asteroide especial que aparece cada pocos segundos desde un borde de la pantalla, se mueve mucho más rápido que los normales, se desvanece sola a los 6 s y da 250 puntos al destruirla (no se parte en fragmentos)
+- **Escudo de energía**: mantén `Shift` para proyectar un aro cian alrededor de la nave que destruye los asteroides que lo tocan (sin sumar puntos) a cambio de energía. La reserva dura 2.5 s, cada impacto bloqueado cuesta 0.75 s extra y se recarga al soltar la tecla (5 s para llenarla); al agotarse queda bloqueada hasta recuperar 0.6 s
