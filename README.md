@@ -29,6 +29,7 @@ Luego visita `http://localhost:3000`.
 | `←` `→`   | Rotar nave |
 | `↑`       | Propulsar  |
 | `Espacio` | Disparar   |
+| `C`       | Cambiar skin de la nave |
 
 ## Puntuación
 
@@ -46,3 +47,4 @@ Luego visita `http://localhost:3000`.
 - Partículas de explosión al destruir asteroides
 - Power-up **Velocidad**: los asteroides destruidos pueden soltar un rayo cian que duplica el impulso de la nave durante 5 s
 - **Estrella fugaz**: asteroide especial que aparece cada pocos segundos desde un borde de la pantalla, se mueve mucho más rápido que los normales, se desvanece sola a los 6 s y da 250 puntos al destruirla (no se parte en fragmentos)
+- **Skins de nave**: cambia la silueta y el color de la nave con la tecla `C` (disponible en cualquier momento, también en game over); la elección se guarda en el navegador y se recuerda entre sesiones
