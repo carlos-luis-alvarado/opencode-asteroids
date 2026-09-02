@@ -45,4 +45,5 @@ Luego visita `http://localhost:3000`.
 - Asteroides se parten en fragmentos más pequeños al ser destruidos
 - Partículas de explosión al destruir asteroides
 - Power-up **Velocidad**: los asteroides destruidos pueden soltar un rayo cian que duplica el impulso de la nave durante 5 s
+- Power-up **Triple disparo**: los asteroides destruidos pueden soltar una cápsula magenta que hace que cada disparo lance 3 balas en línea recta durante 5 s
 - **Estrella fugaz**: asteroide especial que aparece cada pocos segundos desde un borde de la pantalla, se mueve mucho más rápido que los normales, se desvanece sola a los 6 s y da 250 puntos al destruirla (no se parte en fragmentos)
