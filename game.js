@@ -59,6 +59,15 @@ const SKINS = [
     llama: 'rgba(140, 255, 140, 0.9)',
     verts: [[18, 0], [3, -4], [-4, -12], [-11, -9], [-8, -3], [-8, 3], [-11, 9], [-4, 12], [3, 4]],  // caza con alas barridas
   },
+  {
+    id: 'gigante',
+    nombre: 'GIGANTE',
+    color: '#b45ef7',
+    llama: 'rgba(200, 130, 255, 0.9)',
+    scale: 2,
+    pointsMult: 2,
+    verts: [[20, 0], [-12, -9], [-7, 0], [-12, 9]],   // réplica 2x de la clásica
+  },
 ];
 
 const SKIN_KEY = 'asteroids-skin';
@@ -70,12 +79,15 @@ try {
 } catch { /* sin acceso a storage: se queda la skin clásica */ }
 
 const getSkin = () => SKINS[skinIndex];
+const getScale = () => getSkin().scale || 1;
+const getPointsMult = () => getSkin().pointsMult || 1;
 
 let skinMsgTimer = 0;   // segundos restantes del aviso "SKIN: ..." en el HUD
 
 function cycleSkin() {
   skinIndex = (skinIndex + 1) % SKINS.length;
   skinMsgTimer = 2;
+  if (ship) ship.radius = 12 * getScale();
   try { localStorage.setItem(SKIN_KEY, SKINS[skinIndex].id); } catch {}
 }
 
@@ -252,7 +264,7 @@ class Ship {
     this.angle  = -Math.PI / 2;
     this.vx     = 0;
     this.vy     = 0;
-    this.radius = 12;
+    this.radius = 12 * getScale();
     this.thrusting     = false;
     this.invincible    = 3;
     this.shootCooldown = 0;
@@ -311,7 +323,7 @@ class Ship {
   tryShoot() {
     if (this.shootCooldown > 0 || this.dead) return [];
     this.shootCooldown = 0.2;
-    const NOSE = 21;
+    const NOSE = 21 * getScale();
     const ox = this.x + Math.cos(this.angle) * NOSE;
     const oy = this.y + Math.sin(this.angle) * NOSE;
 
@@ -338,6 +350,7 @@ class Ship {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
+    ctx.scale(getScale(), getScale());
     ctx.strokeStyle = skin.color;
     ctx.lineWidth   = 1.5;
     ctx.lineJoin    = 'round';
@@ -612,7 +625,7 @@ function update(dt) {
       if (!a.dead && !b.dead && dist(b, a) < a.radius) {
         b.dead = true;
         a.dead = true;
-        score += a.points;
+        score += a.points * getPointsMult();
         explode(a.x, a.y, a.size * 5);
         if (Math.random() < 0.12)
           powerups.push(new PowerUp(a.x, a.y, Math.random() < 0.5 ? 'speed' : 'triple'));
@@ -626,7 +639,7 @@ function update(dt) {
   // Nave vs asteroide (el escudo activo destruye el asteroide en vez de morir)
   if (ship.invincible <= 0) {
     for (const a of asteroids) {
-      const reach = (ship.shieldActive ? SHIELD_RADIUS : ship.radius) + a.radius * 0.82;
+      const reach = (ship.shieldActive ? SHIELD_RADIUS * getScale() : ship.radius) + a.radius * 0.82;
       if (dist(ship, a) < reach) {
         if (ship.shieldActive) {
           a.dead = true;
