@@ -50,4 +50,5 @@ Luego visita `http://localhost:3000`.
 - Power-up **Triple disparo**: los asteroides destruidos pueden soltar una cápsula magenta que hace que cada disparo lance 3 balas en línea recta durante 5 s
 - **Estrella fugaz**: asteroide especial que aparece cada pocos segundos desde un borde de la pantalla, se mueve mucho más rápido que los normales, se desvanece sola a los 6 s y da 250 puntos al destruirla (no se parte en fragmentos)
 - **Skins de nave**: cambia la silueta y el color de la nave con la tecla `C` (disponible en cualquier momento, también en game over); la elección se guarda en el navegador y se recuerda entre sesiones
+- **Skin GIGANTE**: nave morada 2 veces más grande que la clásica que, además, multiplica por 2 todos los puntos obtenidos mientras esté activa
 - **Escudo de energía**: mantén `Shift` para proyectar un aro cian alrededor de la nave que destruye los asteroides que lo tocan (sin sumar puntos) a cambio de energía. La reserva dura 2.5 s, cada impacto bloqueado cuesta 0.75 s extra y se recarga al soltar la tecla (5 s para llenarla); al agotarse queda bloqueada hasta recuperar 0.6 s
